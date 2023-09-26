@@ -29,13 +29,15 @@ const clientSchema = new Schema(
       type: Date,
     },
     createdBy: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     updatedAt:{
       type: Date,
     },
     updatedBy:{
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
 );

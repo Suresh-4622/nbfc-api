@@ -6,11 +6,11 @@ export async function createOrganization(req, res, next) {
   try {
     const data = req.body;
 
-    const existUser = await Organization.find({
+    const checkExistOrg = await Organization.find({
       orgEmail: data.orgEmail,
     });
 
-    if (existUser.length === 0) {
+    if (checkExistOrg.length === 0) {
       const date = Date.now();
       const createAt = moment(date).format("lll");
 
@@ -35,7 +35,7 @@ export async function createOrganization(req, res, next) {
     } else {
       res.status(208).json({
         message: "Organization Already Exist",
-        existUser,
+        checkExistOrg,
       });
     }
   } catch (error) {
@@ -45,7 +45,7 @@ export async function createOrganization(req, res, next) {
 
 export async function updateOrganization(req, res, next) {
   try {
-    const data = req.params.id;
+    const data = req.body;
 
     const date = Date.now();
     const updateAt = moment(date).format("lll");
@@ -64,10 +64,14 @@ export async function updateOrganization(req, res, next) {
       updatedAt: updateAt,
     };
 
-    const updatedData = await Organization.findByIdAndUpdate(id, editData, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedData = await Organization.findByIdAndUpdate(
+      data.orgId,
+      editData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     res.status(201).json({
       status: "Updated",
       message: "Organization Updated Successfully",
@@ -83,6 +87,7 @@ export async function getAllOrganization(req, res, next) {
     const data = await Organization.find().populate("clientId");
 
     res.status(200).json({
+      status: "Success",
       message: "Get All Organization Details Successfully",
       data,
     });
@@ -99,6 +104,7 @@ export async function getOrganization(req, res, next) {
     );
 
     res.status(200).json({
+      status: "Success",
       message: "Get Organization Details Successfully",
       data,
     });

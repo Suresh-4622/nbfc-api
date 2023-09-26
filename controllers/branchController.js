@@ -30,6 +30,7 @@ export async function createBranch(req, res, next) {
         createdAt: createAt,
       });
       res.status(201).json({
+        status: "Created",
         message: "Branch Created Successfully",
         branchData,
       });
@@ -65,10 +66,14 @@ export async function updateBranch(req, res, next) {
       updatedAt: updateAt,
     };
 
-    const updatedData = await Branch.findByIdAndUpdate(data.branchId, editData, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedData = await Branch.findByIdAndUpdate(
+      data.branchId,
+      editData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     res.status(201).json({
       status: "Updated",
       message: "Branch Updated Successfully",
@@ -82,6 +87,7 @@ export async function getAllBranch(req, res, next) {
   try {
     const data = await Branch.find().populate("userId").populate("orgId");
     res.status(201).json({
+      status: "Success",
       message: "Get All Branch Successfully",
       data,
     });
@@ -97,6 +103,7 @@ export async function getBranch(req, res, next) {
       .populate("userId")
       .populate("orgId");
     res.status(201).json({
+      status: "Success",
       message: "Get All Branch Successfully",
       data,
     });

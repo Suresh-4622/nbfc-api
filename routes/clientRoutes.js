@@ -12,5 +12,9 @@ import {
 
 router.route("/create").post(createClient);
 router.route("/all/list").get(getAllClientDetails);
-router.route(":/id").get(getClientDetail).put(updateClient).delete(deleteClientDetails);
+router
+  .route(":/id")
+  .get(getClientDetail)
+  .put(updateClient)
+  .delete(deleteClientDetails);
 export default router;

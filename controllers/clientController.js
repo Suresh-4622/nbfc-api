@@ -1,17 +1,16 @@
 import Client from "../models/clientModel.js";
-import User from "../models/userModel.js";
-import { getAll, getOne, deleteOne } from "./baseController.js";
+import { deleteOne } from "./baseController.js";
 import moment from "moment-timezone";
 
 export async function createClient(req, res, next) {
   try {
     const data = req.body;
 
-    const existUser = await Client.find({
-      clientEmail: data.clientEmail
+    const checkExistClient = await Client.find({
+      clientEmail: data.clientEmail,
     });
 
-    if (existUser.length === 0) {
+    if (checkExistClient.length === 0) {
       const date = Date.now();
       const createAt = moment(date).format("lll");
 
@@ -33,7 +32,7 @@ export async function createClient(req, res, next) {
     } else {
       res.status(208).json({
         message: "Client Already Exist",
-        existUser,
+        checkExistClient,
       });
     }
   } catch (error) {
@@ -43,7 +42,7 @@ export async function createClient(req, res, next) {
 
 export async function updateClient(req, res, next) {
   try {
-    const data = req.params.id;
+    const data = req.body;
 
     const date = Date.now();
     const updateAt = moment(date).format("lll");
@@ -59,10 +58,14 @@ export async function updateClient(req, res, next) {
       updatedAt: updateAt,
     };
 
-    const updatedData = await Client.findByIdAndUpdate(id, editData, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedData = await Client.findByIdAndUpdate(
+      data.clientId,
+      editData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     res.status(201).json({
       status: "Updated",
       message: "Client Updated Successfully",
@@ -73,32 +76,31 @@ export async function updateClient(req, res, next) {
   }
 }
 
-export async function getAllClientDetails(req, res, next){
-  try{
+export async function getAllClientDetails(req, res, next) {
+  try {
     const data = await Client.find().populate("userId");
 
     res.status(200).json({
+      status: "Success",
       message: "Get All Client Details Successfully",
       data,
     });
-
-  }catch(err){
+  } catch (err) {
     next(err);
   }
 }
 
-export async function getClientDetail(req, res, next){
-  try{
-
+export async function getClientDetail(req, res, next) {
+  try {
     const clientId = req.params.id;
-     const data = await Client.findOne({_id: clientId }).populate("userId");
+    const data = await Client.findOne({ _id: clientId }).populate("userId");
 
     res.status(200).json({
+      status: "Success",
       message: "Get Client Details Successfully",
       data,
     });
-
-  }catch(err){
+  } catch (err) {
     next(err);
   }
 }

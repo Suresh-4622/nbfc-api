@@ -43,18 +43,19 @@ const branchSchema = new Schema(
       type: Date,
       required: [true, "Branch pincode is required"],
     },
-   
     createdAt:{
         type: Date,
     },
     createdBy: {
-      type: Date,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     updatedAt:{
       type: Date,
     },
     updatedBy:{
-      type: Date,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
 );

@@ -12,5 +12,9 @@ import {
 
 router.route("/create").post(createOrganization);
 router.route("/all/list").get(getAllOrganization);
-router.route(":/id").get(getOrganization).put(updateOrganization).delete(deleteOrganization);
+router
+  .route(":/id")
+  .get(getOrganization)
+  .put(updateOrganization)
+  .delete(deleteOrganization);
 export default router;
