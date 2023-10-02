@@ -1,3 +1,4 @@
+import client from "../models/clientModel.js";
 import Client from "../models/clientModel.js";
 import { deleteOne } from "./baseController.js";
 import moment from "moment-timezone";
@@ -5,7 +6,6 @@ import moment from "moment-timezone";
 export async function createClient(req, res, next) {
   try {
     const data = req.body;
-
     const checkExistClient = await Client.find({
       clientEmail: data.clientEmail,
     });
@@ -25,17 +25,27 @@ export async function createClient(req, res, next) {
         createdAt: createAt,
       });
       res.status(201).json({
-        status: "Created",
-        message: "Client Created Successfully",
+        status: true,
         clientData,
       });
     } else {
       res.status(208).json({
+        status: false,
         message: "Client Already Exist",
         checkExistClient,
       });
     }
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const validationErrors = {};
+      for (const field in error.errors) {
+        validationErrors[field] = error.errors[field].message;
+      }
+      return res.status(422).json({
+        status: false,
+        validationErrors,
+      });
+    }
     next(error);
   }
 }
@@ -51,32 +61,44 @@ export async function updateClient(req, res, next) {
       userId: data.userId,
       clientName: data.clientName,
       clientEmail: data.clientEmail,
-      clientPhone: data.clientPhone,
+   
       language: data.language,
       desc: data.desc,
       updatedBy: data.userId,
       updatedAt: updateAt,
     };
 
-    const updatedData = await Client.findByIdAndUpdate(
-      data.clientId,
-      editData,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+
+    const updatedData = await Client.findByIdAndUpdate(data.clientId, editData, {
+      new: true,
+      runValidators: true,
+    });
+
     res.status(201).json({
-      status: "Updated",
+      status: true,
       message: "Client Updated Successfully",
       updatedData,
     });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const validationErrors = {};
+      for (const field in error.errors) {
+        validationErrors[field] = error.errors[field].message;
+      }
+
+      // Send validation error response to the front end
+      return res.status(422).json({
+        status: false,
+        message: "Invalid Data",
+        validationErrors,
+      });
+    }
     next(error);
   }
 }
 
-export async function getAllClientDetails(req, res, next) {
+
+export async function getAllClient(req, res, next) {
   try {
     const data = await Client.find().populate("userId");
 
@@ -90,18 +112,45 @@ export async function getAllClientDetails(req, res, next) {
   }
 }
 
-export async function getClientDetail(req, res, next) {
+export async function getOneClient(req, res, next) {
   try {
-    const clientId = req.params.id;
+    const clientId = req.query.clientId;
     const data = await Client.findOne({ _id: clientId }).populate("userId");
 
-    res.status(200).json({
-      status: "Success",
-      message: "Get Client Details Successfully",
-      data,
-    });
+    if(data){
+      res.status(200).json({
+        status: true,
+        data,
+      });
+    }else{
+      res.status(422).json({
+        status: false,
+        message: "No Record Found This ClientId"
+      });
+    }
   } catch (err) {
     next(err);
   }
 }
-export const deleteClientDetails = deleteOne(Client);
+export async function deleteOneClient(req, res, next){
+  try{
+    const clientId = req.query.clientId;
+
+    const findData = await Client.findOne({_id: clientId});
+
+    if(findData){
+      const deleteData = await Client.findByIdAndDelete(clientId);
+
+      res.status(200).json({
+        status: true,
+      });
+    }else{
+      res.status(422).json({
+        status: false,
+        message: "No Record Found This Id"
+      });
+    }
+  }catch(err){
+    next(err);
+  }
+}

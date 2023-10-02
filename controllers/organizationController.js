@@ -6,6 +6,25 @@ export async function createOrganization(req, res, next) {
   try {
     const data = req.body;
 
+    const missingFields = [];
+
+    const requiredFields = ["clientId", "orgName", "orgCode", "phone","orgEmail","address",
+                            "state", "city","pincode"];
+
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        missingFields.push(field);
+      }
+    }
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: "Missing required fields",
+        missingFields,
+      });
+    }
+
+
     const checkExistOrg = await Organization.find({
       orgEmail: data.orgEmail,
     });

@@ -5,16 +5,14 @@ const router = Router();
 import {
   createClient,
   updateClient,
-  getClientDetail,
-  getAllClientDetails,
-  deleteClientDetails,
+  getOneClient,
+  getAllClient,
+  deleteOneClient,
 } from "../controllers/clientController.js";
 
 router.route("/create").post(createClient);
-router.route("/all/list").get(getAllClientDetails);
-router
-  .route(":/id")
-  .get(getClientDetail)
-  .put(updateClient)
-  .delete(deleteClientDetails);
+router.route("/all/list").get(getAllClient);
+router.route("/update").put(updateClient);
+router.route("/get/one").get(getOneClient);
+router.route("/delete/one").delete(deleteOneClient);
 export default router;

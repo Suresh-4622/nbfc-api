@@ -1,10 +1,28 @@
 import User from "../models/userModel.js";
 import { TOKEN_KEY } from "../config.js";
 import moment from "moment-timezone";
+import jwt from "jsonwebtoken";
 
 export async function userRegistration(req, res, next) {
   try {
     const data = req.body;
+
+    const missingFields = [];
+
+    const requiredFields = ["userName", "email", "password"];
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        missingFields.push(field);
+      }
+    }
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: "Missing required fields",
+        missingFields,
+      });
+    }
+
 
     const checkUserExist = await User.find({ email: data.email });
 
@@ -26,9 +44,17 @@ export async function userRegistration(req, res, next) {
         userData,
       });
     } else {
+      //update user register
+      const editData = {
+        isFirst: false,
+      }
+      const existData = await User.findByIdAndUpdate(checkUserExist[0].id, editData ,{
+        new: true,
+        runValidators: true
+      })
       res.status(208).json({
         message: "User Already Exist",
-        checkUserExist,
+        existData,
       });
     }
   } catch (err) {
@@ -39,6 +65,22 @@ export async function userRegistration(req, res, next) {
 export async function login(req, res, next) {
   try {
     const data = req.body;
+
+    const missingFields = [];
+
+    const requiredFields = ["email", "password"];
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        missingFields.push(field);
+      }
+    }
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: "Missing required fields",
+        missingFields,
+      });
+    }
 
     const user = await User.findOne({
       email: data.email,
@@ -55,7 +97,7 @@ export async function login(req, res, next) {
           expiresIn: "10m",
         }
       );
-      await User.findByIdAndUpdate(
+     const userData= await User.findByIdAndUpdate(
         { _id: user._id },
         {
           lastLogin: date,
@@ -69,7 +111,7 @@ export async function login(req, res, next) {
       res.status(200).json({
         status: "Created",
         message: "Login Successfully",
-        user,
+        userData,
       });
     } else {
       res.status(400).json({
