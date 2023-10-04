@@ -12,6 +12,7 @@ import AppError from "./utils/appError.js";
 import userRoutes from "./routes/userRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
 import organizationRoutes from "./routes/organizationRoutes.js";
+import branchRoutes from "./routes/branchRoutes.js";
 
 
 const app = express();
@@ -51,6 +52,7 @@ app.use(hpp());
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/client", clientRoutes);
 app.use("/api/v1/org", organizationRoutes);
+app.use("/api/v1/branch",branchRoutes);
 
 
 // handle undefined Routes

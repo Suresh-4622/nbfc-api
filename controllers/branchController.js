@@ -6,6 +6,23 @@ export async function createBranch(req, res, next) {
   try {
     const data = req.body;
 
+    const missingFields = [];
+
+    const requiredFields = ["orgId", "branchName", "branchCode", "branchPhone", 
+    "branchEmail", "address", "state", "city", "pincode"];
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        missingFields.push(field);
+      }
+    }
+
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        message: "Missing required fields",
+        missingFields,
+      });
+    }
+
     const checkExistBranch = await Branch.find({
       orgId: data.orgId,
       branchCode: data.branchCode,
