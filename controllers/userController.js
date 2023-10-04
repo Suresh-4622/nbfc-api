@@ -9,7 +9,7 @@ export async function userRegistration(req, res, next) {
 
     const missingFields = [];
 
-    const requiredFields = ["userName", "email", "password"];
+    const requiredFields = ["userName" ,"email", "password"];
     for (const field of requiredFields) {
       if (!data[field]) {
         missingFields.push(field);
@@ -17,15 +17,12 @@ export async function userRegistration(req, res, next) {
     }
 
     if (missingFields.length > 0) {
-      return res.status(400).json({
-        message: "Missing required fields",
-        missingFields,
+      return res.status(422).json({
+        status: false,
+        message: `${missingFields} is required fields`,
       });
     }
-
-
     const checkUserExist = await User.find({ email: data.email });
-
     const date = Date.now();
     const createdAt = moment(date).format("lll");
 
@@ -38,29 +35,41 @@ export async function userRegistration(req, res, next) {
         createdAt: createdAt,
       });
 
+      const responseUserData = {
+        userName: userData.userName,
+        email: userData.email,
+        createdAt: userData.createdAt,
+        id: userData.id,
+      };
+
       res.status(200).json({
-        message: "User Singed Successfully",
-        page: "wizard",
-        userData,
+        status: true,
+       message: "Register Successfully",
       });
     } else {
-      //update user register
-      const editData = {
-        isFirst: false,
-      }
-      const existData = await User.findByIdAndUpdate(checkUserExist[0].id, editData ,{
-        new: true,
-        runValidators: true
-      })
       res.status(208).json({
+        status: false,
         message: "User Already Exist",
-        existData,
       });
     }
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      const validationErrors = {};
+      for (const field in error.errors) {
+        validationErrors[field] = error.errors[field].message;
+      }
+      const firstValidationErrorField = Object.keys(validationErrors)[0];
+      const errorMessage = validationErrors[firstValidationErrorField];
+
+      return res.status(422).json({
+        status: false,
+        message: errorMessage,
+      });
+    }
+    next(error);
   }
 }
+
 
 export async function login(req, res, next) {
   try {
@@ -76,9 +85,9 @@ export async function login(req, res, next) {
     }
 
     if (missingFields.length > 0) {
-      return res.status(400).json({
-        message: "Missing required fields",
-        missingFields,
+      return res.status(422).json({
+        status: false,
+        message: `${missingFields} is required fields`,
       });
     }
 
@@ -97,7 +106,7 @@ export async function login(req, res, next) {
           expiresIn: "10m",
         }
       );
-     const userData= await User.findByIdAndUpdate(
+      const userData= await User.findByIdAndUpdate(
         { _id: user._id },
         {
           lastLogin: date,
@@ -106,16 +115,19 @@ export async function login(req, res, next) {
         {
           new: true,
           runValidators: true,
+          select: '-password -isFirst -id -token',
         }
       );
       res.status(200).json({
-        status: "Created",
-        message: "Login Successfully",
+        status: true,
+        page: "wizard",
+        isFirst: user.isFirst,
+        userToken: userData.token,
         userData,
       });
     } else {
       res.status(400).json({
-        status: "Bad Request",
+        status: false,
         message: "Invalid Credential",
       });
     }
