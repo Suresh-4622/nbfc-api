@@ -25,6 +25,22 @@ const clientSchema = new Schema(
     desc:{
       type: String,
     },
+    address: {
+      type: String,
+      required: [true, "Client address is required"],
+    },
+    state: {
+      type: String,
+      required: [true, "Client state is required"],
+    },
+    city: {
+      type: String,
+      required: [true, "Client city is required"],
+    },
+    pincode: {
+      type: Date,
+      required: [true, "Client pincode is required"],
+    },
     createdAt: {
       type: Date,
     },
