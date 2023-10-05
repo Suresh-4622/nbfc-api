@@ -1,6 +1,5 @@
-import client from "../models/clientModel.js";
 import Client from "../models/clientModel.js";
-import { deleteOne } from "./baseController.js";
+import User from "../models/userModel.js";
 import moment from "moment-timezone";
 
 export async function createClient(req, res, next) {
@@ -24,6 +23,16 @@ export async function createClient(req, res, next) {
         createdBy: data.userId,
         createdAt: createAt,
       });
+      // update client status 
+      const editData = {
+        isFirst : false,
+      }
+      const userUpdateData = await User.findByIdAndUpdate(data.userId ,editData,
+        {
+          new: true,
+          runValidators: true,
+        }
+        );
       res.status(201).json({
         status: true,
         clientData,
@@ -32,7 +41,6 @@ export async function createClient(req, res, next) {
       res.status(208).json({
         status: false,
         message: "Client Already Exist",
-        checkExistClient,
       });
     }
   } catch (error) {
@@ -41,9 +49,12 @@ export async function createClient(req, res, next) {
       for (const field in error.errors) {
         validationErrors[field] = error.errors[field].message;
       }
+      const firstValidationErrorField = Object.keys(validationErrors)[0];
+      const errorMessage = validationErrors[firstValidationErrorField];
+
       return res.status(422).json({
         status: false,
-        validationErrors,
+        message: errorMessage,
       });
     }
     next(error);
@@ -61,7 +72,7 @@ export async function updateClient(req, res, next) {
       userId: data.userId,
       clientName: data.clientName,
       clientEmail: data.clientEmail,
-   
+      clientPhone: data.clientPhone,
       language: data.language,
       desc: data.desc,
       updatedBy: data.userId,
@@ -85,12 +96,12 @@ export async function updateClient(req, res, next) {
       for (const field in error.errors) {
         validationErrors[field] = error.errors[field].message;
       }
+      const firstValidationErrorField = Object.keys(validationErrors)[0];
+      const errorMessage = validationErrors[firstValidationErrorField];
 
-      // Send validation error response to the front end
       return res.status(422).json({
         status: false,
-        message: "Invalid Data",
-        validationErrors,
+        message: errorMessage,
       });
     }
     next(error);
