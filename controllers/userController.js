@@ -103,7 +103,7 @@ export async function login(req, res, next) {
         { email: data.email, password: data.password },
         TOKEN_KEY,
         {
-          expiresIn: "10m",
+          expiresIn: "20m",
         }
       );
       const userData= await User.findByIdAndUpdate(
