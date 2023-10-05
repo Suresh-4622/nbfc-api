@@ -1,5 +1,4 @@
 import Organization from "../models/orgModel.js";
-import { getAll, getOne, deleteOne } from "./baseController.js";
 import moment from "moment-timezone";
 
 export async function createOrganization(req, res, next) {
@@ -28,12 +27,12 @@ export async function createOrganization(req, res, next) {
         createdBy: data.userId,
         createdAt: createAt,
       });
-      res.status(201).json({
+      res.status(200).json({
         status: true,
         message: "Organization Created Successfully",
       });
     } else {
-      res.status(208).json({
+      res.status(422).json({
         status: false,
         message: "Organization Already Exist",
       });
@@ -102,7 +101,7 @@ export async function updateOrganization(req, res, next) {
         runValidators: true,
       }
     );
-    res.status(201).json({
+    res.status(200).json({
       status: true,
       message: "Organization Updated Successfully",
     });
@@ -201,7 +200,7 @@ export async function deleteOrganization(req, res, next) {
 
       res.status(200).json({
         status: true,
-        message: "Client Deleted Successfully",
+        message: "Organization Deleted Successfully",
       });
     } else {
       res.status(422).json({
