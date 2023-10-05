@@ -4,7 +4,7 @@ const { Schema, model } = mongoose;
 const orgSchema = new Schema({
   clientId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "Client",
   },
   orgName: {
     type: String,
