@@ -132,7 +132,7 @@ export async function login(req, res, next) {
         userData:responseUserData,
       });
     } else {
-      res.status(400).json({
+      res.status(422).json({
         status: false,
         message: "Invalid Credential",
       });
