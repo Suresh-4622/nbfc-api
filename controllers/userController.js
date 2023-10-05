@@ -47,7 +47,7 @@ export async function userRegistration(req, res, next) {
        message: "Register Successfully",
       });
     } else {
-      res.status(208).json({
+      res.status(422).json({
         status: false,
         message: "User Already Exist",
       });
