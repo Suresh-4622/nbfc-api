@@ -1,27 +1,9 @@
 import Branch from "../models/branchModel.js";
-import { getAll, getOne, deleteOne } from "./baseController.js";
 import moment from "moment-timezone";
 
 export async function createBranch(req, res, next) {
   try {
     const data = req.body;
-
-    const missingFields = [];
-
-    const requiredFields = ["orgId", "branchName", "branchCode", "branchPhone", 
-    "branchEmail", "address", "state", "city", "pincode"];
-    for (const field of requiredFields) {
-      if (!data[field]) {
-        missingFields.push(field);
-      }
-    }
-
-    if (missingFields.length > 0) {
-      return res.status(400).json({
-        message: "Missing required fields",
-        missingFields,
-      });
-    }
 
     const checkExistBranch = await Branch.find({
       orgId: data.orgId,
@@ -34,6 +16,7 @@ export async function createBranch(req, res, next) {
 
       const branchData = await Branch.create({
         userId: data.userId,
+        clientId: data.clientId,
         orgId: data.orgId,
         branchName: data.branchName,
         branchCode: data.branchCode,
@@ -46,18 +29,30 @@ export async function createBranch(req, res, next) {
         createdBy: data.userId,
         createdAt: createAt,
       });
-      res.status(201).json({
-        status: "Created",
+      res.status(200).json({
+        status: true,
         message: "Branch Created Successfully",
-        branchData,
       });
     } else {
-      res.status(208).json({
+      res.status(422).json({
+        status: false,
         message: "Branch Already Exist",
-        checkExistBranch,
       });
     }
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const validationErrors = {};
+      for (const field in error.errors) {
+        validationErrors[field] = error.errors[field].message;
+      }
+      const firstValidationErrorField = Object.keys(validationErrors)[0];
+      const errorMessage = validationErrors[firstValidationErrorField];
+
+      return res.status(422).json({
+        status: false,
+        message: errorMessage,
+      });
+    }
     next(error);
   }
 }
@@ -65,16 +60,34 @@ export async function createBranch(req, res, next) {
 export async function updateBranch(req, res, next) {
   try {
     const data = req.body;
+    const missingFields = [];
+
+    const requiredFields = ["branchId"];
+
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        missingFields.push(field);
+      }
+    }
+
+    if (missingFields.length > 0) {
+      return res.status(422).json({
+        status: false,
+        message: `${missingFields} is required fields`,
+      });
+    }
 
     const date = Date.now();
     const updateAt = moment(date).format("lll");
 
     const editData = {
+      userId: data.userId,
       clientId: data.clientId,
-      orgName: data.orgName,
-      orgCode: data.orgCode,
-      phone: data.phone,
-      orgEmail: data.orgEmail,
+      orgId: data.orgId,
+      branchName: data.branchName,
+      branchCode: data.branchCode,
+      branchPhone: data.branchPhone,
+      branchEmail: data.branchEmail,
       address: data.address,
       state: data.state,
       city: data.city,
@@ -91,20 +104,60 @@ export async function updateBranch(req, res, next) {
         runValidators: true,
       }
     );
-    res.status(201).json({
-      status: "Updated",
+    res.status(200).json({
+      status: true,
       message: "Branch Updated Successfully",
-      updatedData,
     });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const validationErrors = {};
+      for (const field in error.errors) {
+        validationErrors[field] = error.errors[field].message;
+      }
+      const firstValidationErrorField = Object.keys(validationErrors)[0];
+      const errorMessage = validationErrors[firstValidationErrorField];
+
+      return res.status(422).json({
+        status: false,
+        message: errorMessage,
+      });
+    }
     next(error);
   }
 }
 export async function getAllBranch(req, res, next) {
   try {
-    const data = await Branch.find().populate("userId").populate("orgId");
-    res.status(201).json({
-      status: "Success",
+    const datas = req.body;
+    const data = await Branch.find({ orgId: datas.orgId }).populate({
+      path: "orgId",
+      populate: {
+        path: "clientId",
+        model: "Client",
+        populate: {
+          path: "userId",
+          model: "User",
+        },
+      },
+    });
+
+    const missingFields = [];
+    const requiredFields = ["orgId"];
+
+    for (const field of requiredFields) {
+      if (!datas[field]) {
+        missingFields.push(field);
+      }
+    }
+
+    if (missingFields.length > 0) {
+      return res.status(422).json({
+        status: false,
+        message: `${missingFields} is required fields`,
+      });
+    }
+
+    res.status(200).json({
+      status: true,
       message: "Get All Branch Successfully",
       data,
     });
@@ -113,20 +166,57 @@ export async function getAllBranch(req, res, next) {
   }
 }
 
-export async function getBranch(req, res, next) {
+export async function getOneBranch(req, res, next) {
   try {
-    const branchId = req.params.id;
-    const data = await Branch.findOne({ _id: branchId })
-      .populate("userId")
-      .populate("orgId");
-    res.status(201).json({
-      status: "Success",
-      message: "Get All Branch Successfully",
-      data,
+    const branchId = req.query.branchId;
+    const data = await Branch.findOne({ _id: branchId }).populate({
+      path: "orgId",
+      populate: {
+        path: "clientId",
+        model: "Client",
+        populate: {
+          path: "userId",
+          model: "User",
+        },
+      },
     });
+
+    if (data) {
+      res.status(200).json({
+        status: true,
+        data,
+      });
+    } else {
+      res.status(422).json({
+        status: false,
+        message: "No Record Found Id",
+      });
+    }
   } catch (err) {
     next(err);
   }
 }
 
-export const deleteBranch = deleteOne(Branch);
+export async function deleteBranch(req, res, next) {
+  try {
+    const branchId = req.query.branchId;
+
+    const findData = await Branch.findOne({ _id: branchId });
+
+    if (findData) {
+      const deleteData = await Branch.findByIdAndDelete(branchId);
+
+      res.status(200).json({
+        status: true,
+        message: "Branch Deleted Successfully",
+      });
+    } else {
+      res.status(422).json({
+        status: false,
+        message: "No Record Found This Id",
+      });
+    }
+  } catch (err) {
+    next(err);
+  }
+}
