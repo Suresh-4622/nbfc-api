@@ -20,6 +20,10 @@ export async function createClient(req, res, next) {
         clientPhone: data.clientPhone,
         language: data.language,
         desc: data.desc,
+        address: data.address,
+        state: data.state,
+        city: data.city,
+        pincode: data.pincode,
         createdBy: data.userId,
         createdAt: createAt,
       });
@@ -35,7 +39,7 @@ export async function createClient(req, res, next) {
         );
       res.status(201).json({
         status: true,
-        clientData,
+        message: "Client Created Successfully"
       });
     } else {
       res.status(208).json({
@@ -68,6 +72,25 @@ export async function updateClient(req, res, next) {
     const date = Date.now();
     const updateAt = moment(date).format("lll");
 
+    const missingFields = [];
+
+    const requiredFields = ["clientId"];
+
+    for (const field of requiredFields) {
+      if (!data[field]) {
+        missingFields.push(field);
+      }
+    }
+
+    if (missingFields.length > 0) {
+      return res.status(422).json({
+        status: false,
+        message: `${missingFields} is required fields`,
+      });
+    }
+
+
+
     const editData = {
       userId: data.userId,
       clientName: data.clientName,
@@ -75,10 +98,13 @@ export async function updateClient(req, res, next) {
       clientPhone: data.clientPhone,
       language: data.language,
       desc: data.desc,
+      address: data.address,
+      state: data.state,
+      city: data.city,
+      pincode: data.pincode,
       updatedBy: data.userId,
       updatedAt: updateAt,
     };
-
 
     const updatedData = await Client.findByIdAndUpdate(data.clientId, editData, {
       new: true,
@@ -88,7 +114,6 @@ export async function updateClient(req, res, next) {
     res.status(201).json({
       status: true,
       message: "Client Updated Successfully",
-      updatedData,
     });
   } catch (error) {
     if (error.name === "ValidationError") {
@@ -154,6 +179,7 @@ export async function deleteOneClient(req, res, next){
 
       res.status(200).json({
         status: true,
+        message: "Client Deleted Successfully"
       });
     }else{
       res.status(422).json({
