@@ -57,7 +57,7 @@ app.use("/api/v1/branch",branchRoutes);
 
 // handle undefined Routes
 app.use("*", (req, res, next) => {
-  const err = new AppError(404, "fail", "undefined route");
+  const err = new AppError(422, "fail", "undefined route");
   next(err, req, res, next);
 });
 
