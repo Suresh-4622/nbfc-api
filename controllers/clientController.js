@@ -37,12 +37,12 @@ export async function createClient(req, res, next) {
           runValidators: true,
         }
         );
-      res.status(201).json({
+      res.status(200).json({
         status: true,
         message: "Client Created Successfully"
       });
     } else {
-      res.status(208).json({
+      res.status(422).json({
         status: false,
         message: "Client Already Exist",
       });
@@ -111,7 +111,7 @@ export async function updateClient(req, res, next) {
       runValidators: true,
     });
 
-    res.status(201).json({
+    res.status(200).json({
       status: true,
       message: "Client Updated Successfully",
     });
