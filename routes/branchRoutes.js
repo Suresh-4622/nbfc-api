@@ -6,11 +6,13 @@ import {
   createBranch,
   deleteBranch,
   getAllBranch,
-  getBranch,
+  getOneBranch,
   updateBranch,
 } from "../controllers/branchController.js";
 
 router.route("/create").post(createBranch);
 router.route("/all/list").get(getAllBranch);
-router.route(":/id").get(getBranch).put(updateBranch).delete(deleteBranch);
+router.route("/update").put(updateBranch);
+router.route("/get/one").get(getOneBranch);
+router.route("/delete/one").delete(deleteBranch);
 export default router;
