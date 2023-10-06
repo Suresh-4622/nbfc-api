@@ -27,6 +27,9 @@ const userSchema = new Schema({
   lastLogin:{
     type: Date,
   },
+  userType: {
+    type: Number,
+  },
 });
 
 userSchema.method("toJSON", function () {
