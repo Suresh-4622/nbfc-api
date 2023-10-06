@@ -1,5 +1,6 @@
 import Branch from "../models/branchModel.js";
 import moment from "moment-timezone";
+import User from "../models/userModel.js";
 
 export async function createBranch(req, res, next) {
   try {
@@ -29,6 +30,16 @@ export async function createBranch(req, res, next) {
         createdBy: data.userId,
         createdAt: createAt,
       });
+
+      const editData = {
+        isFirst : false,
+      }
+      const userUpdateData = await User.findByIdAndUpdate(data.userId ,editData,
+        {
+          new: true,
+          runValidators: true,
+        }
+        );
       res.status(200).json({
         status: true,
         message: "Branch Created Successfully",
