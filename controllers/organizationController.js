@@ -16,6 +16,7 @@ export async function createOrganization(req, res, next) {
 
       const orgData = await Organization.create({
         clientId: data.clientId,
+        userId: data.userId,
         orgName: data.orgName,
         orgCode: data.orgCode,
         phone: data.phone,
