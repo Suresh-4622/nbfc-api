@@ -29,7 +29,7 @@ export async function createClient(req, res, next) {
       });
       // update client status 
       const editData = {
-        isFirst : false,
+         userType : 2,
       }
       const userUpdateData = await User.findByIdAndUpdate(data.userId ,editData,
         {
