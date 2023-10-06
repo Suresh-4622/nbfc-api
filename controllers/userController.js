@@ -101,7 +101,6 @@ export async function login(req, res, next) {
     const orgData = await Organization.findOne({ userId: user.id });
     const branchData = await Branch.findOne({ userId: user.id });
     const date = Date.now();
-
     if (user) {
       if (user.isFirst && !clientData) {
         const tokenId = jwt.sign(
@@ -126,6 +125,7 @@ export async function login(req, res, next) {
         res.status(200).json({
           status: true,
           message: "Login Successfully",
+          isFirst: true,
           wizard: 0,
           token: userData.token,
         });
@@ -156,6 +156,7 @@ export async function login(req, res, next) {
         res.status(200).json({
           status: true,
           message: "Login Successfully",
+          isFirst: true,
           wizard: 1,
           token: userData.token,
         });
@@ -187,6 +188,7 @@ export async function login(req, res, next) {
         res.status(200).json({
           status: true,
           message: "Login Successfully",
+          isFirst: true,
           wizard: 2,
           token: userData.token,
         });
@@ -219,6 +221,7 @@ export async function login(req, res, next) {
           res.status(200).json({
             status: true,
             message: "Logind Successfully",
+            isFirst: false,
             token: userData.token,
           });
           //get branch details
@@ -252,6 +255,7 @@ export async function login(req, res, next) {
             res.status(200).json({
               status: true,
               message: "Logind Successfully",
+              isFirst: false,
               token: userData.token,
             });
           } else {
@@ -281,6 +285,7 @@ export async function login(req, res, next) {
             res.status(200).json({
               status: true,
               message: "Logind Successfully",
+              isFirst: false,
               userType: user.userType,
             });
           }
@@ -310,6 +315,7 @@ export async function login(req, res, next) {
           res.status(200).json({
             status: true,
             message: "Logind Successfully",
+            isFirst: false,
             token: userData.token,
           });
         }
