@@ -6,6 +6,10 @@ const orgSchema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Client",
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   orgName: {
     type: String,
     required: [true, "Organization Name is required"],
