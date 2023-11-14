@@ -76,6 +76,7 @@ export async function userRegistration(req, res, next) {
 export async function login(req, res, next) {
   try {
     const data = req.body;
+    console.log("data.....", data)
 
     const missingFields = [];
 
@@ -97,6 +98,7 @@ export async function login(req, res, next) {
       email: data.email,
       password: data.password,
     });
+    console.log("user.....",user)
     const clientData = await Client.findOne({ userId: user.id });
     const orgData = await Organization.findOne({ userId: user.id });
     const branchData = await Branch.findOne({ userId: user.id });
