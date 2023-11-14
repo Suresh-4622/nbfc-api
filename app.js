@@ -13,6 +13,8 @@ import userRoutes from "./routes/userRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
 import organizationRoutes from "./routes/organizationRoutes.js";
 import branchRoutes from "./routes/branchRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
+import loanRoutes from "./routes/loanRoutes.js";
 
 
 const app = express();
@@ -53,6 +55,8 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/client", clientRoutes);
 app.use("/api/v1/org", organizationRoutes);
 app.use("/api/v1/branch",branchRoutes);
+app.use("/api/v1/product",productRoutes);
+app.use("/api/v1/loan",loanRoutes);
 
 
 // handle undefined Routes
